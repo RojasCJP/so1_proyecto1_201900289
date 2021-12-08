@@ -31,13 +31,13 @@ static int proc_ram_data(struct seq_file * file, void *v){
     return 0;
 }
 
-static int my_open(struct inode *inode,struct file * file){
+static int open_memory(struct inode *inode,struct file * file){
     return single_open(file,proc_ram_data,NULL);
 }
 
 #ifdef HAVE_PROC_OPS
 static const struct proc_ops operations = {
-  .proc_open = my_open,
+  .proc_open = open_memory,
   .proc_read = seq_read,
   .proc_lseek = seq_lseek,
   .proc_release = single_release,
@@ -45,7 +45,7 @@ static const struct proc_ops operations = {
 #else
 static const struct file_operations operations = {
   .owner = THIS_MODULE,
-  .open = my_open,
+  .open = open_memory,
   .read = seq_read,
   .llseek = seq_lseek,
   .release = single_release,
@@ -53,14 +53,14 @@ static const struct file_operations operations = {
 #endif
 
 static int start(void){
-    proc_create("RAM_201900289",0,NULL,&operations);
+    proc_create("memo_201900289",0,NULL,&operations);
     printk(KERN_INFO "Cargando modulo de RAM\n");
     printk(KERN_INFO "Carnet: 201900289\n");
     return 0;
 }
 
 static void __exit finish(void){
-    remove_proc_entry("RAM_201900289",NULL);
+    remove_proc_entry("memo_201900289",NULL);
     printk(KERN_INFO "Removiendo modulo de RAM\n");
     printk(KERN_INFO "LABORATORIO SISTEMAS OPERATIVOS 1\n");
 }

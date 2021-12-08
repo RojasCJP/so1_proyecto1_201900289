@@ -1,4 +1,4 @@
-obj-m += memory.o
+obj-m += memory_201900289.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
