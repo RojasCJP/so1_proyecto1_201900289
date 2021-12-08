@@ -2,13 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"main/structs"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func main() {
 	prueba := structs.Prueba{Nombre: "juan", Edad: 21}
@@ -32,4 +39,61 @@ func makeServer() {
 
 func welcome(response http.ResponseWriter, request *http.Request) {
 	response.Write([]byte("Hello from Go api"))
+}
+
+func reader(connection *websocket.Conn) {
+	for {
+		messageType, p, err := connection.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println(string(p))
+
+		if err := connection.WriteMessage(messageType, p); err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func writerRam(connection *websocket.Conn) {
+	data := structs.Memoria{Total_memory: 123, Free_memory: 321, Used_memory: 231}
+	for {
+		if err := connection.WriteJSON(data); err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func writerCpu(connection *websocket.Conn) {
+	process := structs.Process{Pid: 1, Name: "buenas", User: 1, State: 2, Child: []int{1, 2, 3}}
+	data := structs.Cpu{Processes: []structs.Process{process}, Running: 1, Sleeping: 2, Zombie: 3, Stopped: 4, Total: 5}
+	for {
+		if err := connection.WriteJSON(data); err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func socketMemory(response http.ResponseWriter, request *http.Request) {
+	upgrader.CheckOrigin = func(request *http.Request) bool { return true }
+	ws, err := upgrader.Upgrade(response, request, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Client connected to RAM")
+	go writerRam(ws)
+}
+
+func socketCpu(response http.ResponseWriter, request *http.Request) {
+	upgrader.CheckOrigin = func(request *http.Request) bool { return true }
+	ws, err := upgrader.Upgrade(response, request, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Client conected to CPU")
+	go writerCpu(ws)
 }
