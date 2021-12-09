@@ -16,6 +16,7 @@ type Process struct {
 	Name  string `json: "name"`
 	User  int    `json: "user"`
 	State int    `json: "state"`
+	Ram   int    `json: "ram"`
 	Child []int  `json: "child"`
 }
 

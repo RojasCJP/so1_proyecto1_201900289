@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"main/structs"
 	"net/http"
@@ -18,9 +20,16 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	prueba := structs.Prueba{Nombre: "juan", Edad: 21}
-	fmt.Println(prueba)
-	makeServer()
+	ram, _ := ioutil.ReadFile("/proc/memo_201900289")
+	processes, _ := ioutil.ReadFile("/proc/cpu_201900289")
+	var memoria structs.Memoria
+	var cpu structs.Cpu
+	fmt.Println(string(processes))
+	json.Unmarshal(ram, &memoria)
+	json.Unmarshal(processes, &cpu)
+	fmt.Println(memoria)
+	fmt.Println(cpu)
+	// makeServer()
 }
 
 func makeServer() {

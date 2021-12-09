@@ -2,6 +2,7 @@
 #include <linux/sched/signal.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -16,9 +17,15 @@ MODULE_DESCRIPTION("modulo de cpu");
 #define HAVE_PROC_OPS
 #endif
 
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
 struct task_struct *task;
 struct task_struct *taskChild;
 struct list_head *list;
+unsigned long rss;
 
 static int proc_cpu(struct seq_file * file, void *v){
     int running = 0;
@@ -26,20 +33,46 @@ static int proc_cpu(struct seq_file * file, void *v){
     int zombie = 0;
     int stopped = 0;
 
-    seq_printf(file,"{\n\"processes\":[\n");
+    #ifndef CONFIG_MMU
+    pr_err("No MMU, cannot calculate RSS.\n");
+    return -EINVAL;
+    #endif
 
+    seq_printf(file,"{\n\"processes\":[\n");
+    int b = 0;
     for_each_process(task){
+        get_task_struct(task);
+        if (task->mm) {
+            rss = get_mm_rss(task->mm) << PAGE_SHIFT;
+        } else {
+            rss = 0;
+        }
+        int ram = 123;
+        if (b ==0){
         seq_printf(file, "{");
+        b=1;
+        }else{
+        seq_printf(file, ",{");
+        }
         seq_printf(file,"\"pid\":%d,\n",task->pid);
         seq_printf(file,"\"name\":\"%s\",\n",task->comm);
         seq_printf(file, "\"user\": %d,\n",task->cred->uid);
         seq_printf(file,"\"state\":%ld,\n",task->__state);
+        int porcentaje = (((rss/(1024*1024)))*100)/(15685);
+        seq_printf(file, "\"ram\":%d,\n",porcentaje);
 
         seq_printf(file,"\"child\":[\n");
+        int a = 0;
         list_for_each(list, &task->children){
             taskChild = list_entry(list,struct task_struct,sibling);
-            seq_printf(file,"%d,",taskChild->pid);
+            if (a != 0){
+            seq_printf(file,",%d",taskChild->pid);
+            }else{
+            seq_printf(file,"%d",taskChild->pid);
+            a = 1;
+            }
         }
+        a = 0;
         seq_printf(file,"\n]");
 
         if(task->__state == 0){
@@ -54,9 +87,9 @@ static int proc_cpu(struct seq_file * file, void *v){
         else if (task->__state == 5){
             stopped +=1;
         }
-        seq_printf(file, "},\n");
+        seq_printf(file, "}\n");
     }
-
+    b=0;
     seq_printf(file, "],\n");
     seq_printf(file, "\"running\":%d,\n",running);
     seq_printf(file, "\"sleeping\":%d,\n",sleeping);
