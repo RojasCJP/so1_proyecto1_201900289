@@ -8,6 +8,9 @@ import (
 	"main/structs"
 	"net/http"
 	"os"
+	"os/exec"
+	"strconv"
+	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -20,16 +23,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	ram, _ := ioutil.ReadFile("/proc/memo_201900289")
-	processes, _ := ioutil.ReadFile("/proc/cpu_201900289")
-	var memoria structs.Memoria
-	var cpu structs.Cpu
-	fmt.Println(string(processes))
-	json.Unmarshal(ram, &memoria)
-	json.Unmarshal(processes, &cpu)
-	fmt.Println(memoria)
-	fmt.Println(cpu)
-	// makeServer()
+	makeServer()
 }
 
 func makeServer() {
@@ -105,4 +99,31 @@ func socketCpu(response http.ResponseWriter, request *http.Request) {
 	}
 	log.Println("Client conected to CPU")
 	go writerCpu(ws)
+}
+
+func getCpuUsage() float64 {
+	cmd := exec.Command("grep", "cpu ", `/proc/stat`)
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error al correr comando", err)
+	}
+	totals := strings.Split(string(stdout), " ")
+	_2, _ := strconv.Atoi(totals[2])
+	_4, _ := strconv.Atoi(totals[4])
+	_5, _ := strconv.Atoi(totals[5])
+	return (float64((_2+_4)*100) / float64(_2+_4+_5))
+}
+
+func getMemory() structs.Memoria {
+	ram, _ := ioutil.ReadFile("/proc/memo_201900289")
+	var memoria structs.Memoria
+	json.Unmarshal(ram, &memoria)
+	return memoria
+}
+
+func getCPU() structs.Cpu {
+	processes, _ := ioutil.ReadFile("/proc/cpu_201900289")
+	var cpu structs.Cpu
+	json.Unmarshal(processes, &cpu)
+	return cpu
 }
