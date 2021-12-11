@@ -22,7 +22,7 @@ struct sysinfo info;
 static int proc_ram_data(struct seq_file * file, void *v){
     si_meminfo(&info);
     unsigned long totalRam = (info.totalram*4);
-    unsigned long freeRam = (info.freeram*4)+(info.sharedram*4)+(info.bufferram*4);
+    unsigned long freeRam = (info.freeram*4)-(info.sharedram*4)-(info.bufferram*4);
     seq_printf(file, "{\n");
     seq_printf(file,"\"total_memory\": %lu,\n",totalRam/1024);
     seq_printf(file,"\"free_memory\": %lu,\n", freeRam/1024);

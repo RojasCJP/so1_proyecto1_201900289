@@ -6,9 +6,10 @@ type Prueba struct {
 }
 
 type Memoria struct {
-	Total_memory int `json: "total_memory"`
-	Free_memory  int `json: "free_memory"`
-	Used_memory  int `json: "used_memory"`
+	Total_memory int     `json: "total_memory"`
+	Free_memory  int     `json: "free_memory"`
+	Used_memory  int     `json: "used_memory"`
+	Cache_memory float64 `json: "cache_memory"`
 }
 
 type Process struct {
@@ -27,4 +28,5 @@ type Cpu struct {
 	Zombie    int       `json: "zombie"`
 	Stopped   int       `json: "stopped"`
 	Total     int       `json: "total"`
+	Usage     float64   `json: "usage"`
 }

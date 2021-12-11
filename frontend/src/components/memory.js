@@ -1,22 +1,24 @@
 import React from 'react'
-import {Chart} from 'react-google-charts'
-import {w3cwebsocket as W3CWebSocket} from 'websocket'
+import { Chart } from 'react-google-charts'
 
-const client = new W3CWebSocket('ws://localhost:4200/memory')
 
+const client = new WebSocket('ws://localhost:4200/ram')
 export class Memory extends React.Component {
     state = {
-        data: [['x','Memoria RAM'],[1,2],[2,3],[3,5],[4,7],[5,8],[6,11],[7,1]]
+        data: [['x', 'Memoria RAM'], [1, 2], [2, 3], [3, 5], [4, 7], [5, 8], [6, 11], [7, 1]]
     }
-    
-    componentDidMount(){
-        client.onopen()=()=>{
+
+    componentDidMount() {
+        client.onopen = (event) => {
             console.log("memory websocket connected");
         }
-        client.onmessage = (message)=>{
+        client.onmessage = (message) => {
             const dataFromServer = JSON.parse(message.data);
-            console.log("data", dataFromServer)
+            console.log("ram", dataFromServer)
         }
+    }
+    componentWillUnmount() {
+        client.close()
     }
 
     render() {
@@ -30,7 +32,7 @@ export class Memory extends React.Component {
                     data={this.state.data}
                     options={{
                         title: ' ',
-                        backgroundColor:'transparent',
+                        backgroundColor: 'transparent',
                         hAxis: {
                             title: 'Tiempo',
                         },
@@ -38,7 +40,7 @@ export class Memory extends React.Component {
                             title: 'Uso',
                         },
                     }}
-                  
+
                     rootProps={{ 'data-testid': '1' }}
                 />
             </div>

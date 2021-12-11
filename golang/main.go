@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -23,6 +24,8 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
+	// fmt.Println(getCPU())
+	// fmt.Println(getMemory())
 	makeServer()
 }
 
@@ -36,6 +39,8 @@ func makeServer() {
 		port = "4200"
 	}
 	router.HandleFunc("/", welcome).Methods("GET")
+	router.HandleFunc("/ram", socketMemory)
+	router.HandleFunc("/cpu", socketCpu)
 	fmt.Println("server up in " + port + " port")
 	http.ListenAndServe(":"+port, handlers.CORS(headers, methods, origins)(router))
 }
@@ -44,7 +49,23 @@ func welcome(response http.ResponseWriter, request *http.Request) {
 	response.Write([]byte("Hello from Go api"))
 }
 
-func reader(connection *websocket.Conn) {
+func readerCPU(connection *websocket.Conn) {
+	for {
+		messageType, p, err := connection.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println(string(p))
+
+		if err := connection.WriteMessage(messageType, p); err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func readerRam(connection *websocket.Conn) {
 	for {
 		messageType, p, err := connection.ReadMessage()
 		if err != nil {
@@ -61,23 +82,24 @@ func reader(connection *websocket.Conn) {
 }
 
 func writerRam(connection *websocket.Conn) {
-	data := structs.Memoria{Total_memory: 123, Free_memory: 321, Used_memory: 231}
 	for {
+		data := getMemory()
 		if err := connection.WriteJSON(data); err != nil {
 			log.Println(err)
 			return
 		}
+		time.Sleep(2 * time.Second)
 	}
 }
 
 func writerCpu(connection *websocket.Conn) {
-	process := structs.Process{Pid: 1, Name: "buenas", User: 1, State: 2, Child: []int{1, 2, 3}}
-	data := structs.Cpu{Processes: []structs.Process{process}, Running: 1, Sleeping: 2, Zombie: 3, Stopped: 4, Total: 5}
 	for {
+		data := getCPU()
 		if err := connection.WriteJSON(data); err != nil {
 			log.Println(err)
 			return
 		}
+		time.Sleep(2 * time.Second)
 	}
 }
 
@@ -88,7 +110,8 @@ func socketMemory(response http.ResponseWriter, request *http.Request) {
 		log.Println(err)
 	}
 	log.Println("Client connected to RAM")
-	go writerRam(ws)
+	writerRam(ws)
+	log.Println("Client disconected to RAM")
 }
 
 func socketCpu(response http.ResponseWriter, request *http.Request) {
@@ -98,26 +121,38 @@ func socketCpu(response http.ResponseWriter, request *http.Request) {
 		log.Println(err)
 	}
 	log.Println("Client conected to CPU")
-	go writerCpu(ws)
+	writerCpu(ws)
+	log.Println("Client disconected to CPU")
 }
 
 func getCpuUsage() float64 {
-	cmd := exec.Command("grep", "cpu ", `/proc/stat`)
+	cmd := exec.Command("sh", "-c", `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage ""}'`)
 	stdout, err := cmd.Output()
 	if err != nil {
 		fmt.Println("error al correr comando", err)
 	}
-	totals := strings.Split(string(stdout), " ")
-	_2, _ := strconv.Atoi(totals[2])
-	_4, _ := strconv.Atoi(totals[4])
-	_5, _ := strconv.Atoi(totals[5])
-	return (float64((_2+_4)*100) / float64(_2+_4+_5))
+	salida := strings.Trim(strings.Trim(string(stdout), " "), "\n")
+	valor, _ := strconv.ParseFloat(salida, 64)
+	return (valor)
+}
+
+func getCache() float64 {
+	cmd := exec.Command("sh", "-c", `free -m | head -n2 | tail -1 | awk '{print $6}'`)
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error al correr comando", err)
+	}
+	salida := strings.Trim(strings.Trim(string(stdout), " "), "\n")
+	valor, _ := strconv.ParseFloat(salida, 64)
+	return valor
 }
 
 func getMemory() structs.Memoria {
 	ram, _ := ioutil.ReadFile("/proc/memo_201900289")
 	var memoria structs.Memoria
 	json.Unmarshal(ram, &memoria)
+	memoria.Cache_memory = getCache()
+	memoria.Used_memory = (memoria.Total_memory - memoria.Free_memory - int(getCache())) * 100 / memoria.Total_memory
 	return memoria
 }
 
@@ -125,5 +160,6 @@ func getCPU() structs.Cpu {
 	processes, _ := ioutil.ReadFile("/proc/cpu_201900289")
 	var cpu structs.Cpu
 	json.Unmarshal(processes, &cpu)
+	cpu.Usage = getCpuUsage()
 	return cpu
 }
