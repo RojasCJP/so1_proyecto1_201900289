@@ -88,7 +88,7 @@ func writerRam(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(400 * time.Millisecond)
 	}
 }
 
@@ -99,7 +99,7 @@ func writerCpu(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(400 * time.Millisecond)
 	}
 }
 
@@ -153,6 +153,7 @@ func getMemory() structs.Memoria {
 	json.Unmarshal(ram, &memoria)
 	memoria.Cache_memory = getCache()
 	memoria.Used_memory = (memoria.Total_memory - memoria.Free_memory - int(getCache())) * 100 / memoria.Total_memory
+	memoria.Available_memory = memoria.Free_memory + int(getCache())
 	return memoria
 }
 

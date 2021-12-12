@@ -5,7 +5,8 @@ import { Chart } from 'react-google-charts'
 const client = new WebSocket('ws://localhost:4200/ram')
 export class Memory extends React.Component {
     state = {
-        data: [['x', 'Memoria RAM'], [1, 2], [2, 3], [3, 5], [4, 7], [5, 8], [6, 11], [7, 1]]
+        data: [['x', 'Memoria RAM'], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0]],
+        memoria: { Total_memory: 0, Free_memory: 0, Used_memory: 0, Available_memory:0 }
     }
 
     componentDidMount() {
@@ -15,6 +16,9 @@ export class Memory extends React.Component {
         client.onmessage = (message) => {
             const dataFromServer = JSON.parse(message.data);
             console.log("ram", dataFromServer)
+            this.fillData()
+            this.setState({ memoria: dataFromServer })
+
         }
     }
     componentWillUnmount() {
@@ -23,34 +27,71 @@ export class Memory extends React.Component {
 
     render() {
         return (
-            <div>
-                <Chart
-                    width={'800px'}
-                    height={'500px'}
-                    chartType="LineChart"
-                    loader={<div>Loading Chart</div>}
-                    data={this.state.data}
-                    options={{
-                        title: ' ',
-                        backgroundColor: 'transparent',
-                        hAxis: {
-                            title: 'Tiempo',
-                        },
-                        vAxis: {
-                            title: 'Uso',
-                        },
-                    }}
+            <div className='row'>
+                <div className='col'>
 
-                    rootProps={{ 'data-testid': '1' }}
-                />
+                    <Chart
+                        width={'800px'}
+                        height={'1000px'}
+                        chartType="LineChart"
+                        loader={<div>Loading Chart</div>}
+                        data={this.state.data}
+                        options={{
+                            title: ' ',
+                            backgroundColor: 'transparent',
+                            hAxis: {
+                                title: 'Tiempo',
+                                textPosition:'none'
+                            },
+                            vAxis: {
+                                title: 'Uso',
+                                minValue: 0,
+                                maxValue: 100
+                            },
+                        }}
+
+                        rootProps={{ 'data-testid': '1' }}
+                    />
+                </div>
+                        <div className='col'>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <p>
+                                Memoria total: {this.state.memoria.Total_memory}
+                            </p>
+                            <p>
+                                Memoria libre: {this.state.memoria.Free_memory}
+                            </p>
+                            <p>
+                                Memoria disponible: {this.state.memoria.Available_memory}
+                            </p>
+                            <p>
+                                Uso de memoria: {this.state.memoria.Used_memory}%
+                            </p>
+                        </div>
             </div>
         )
     }
 
     fillData() {
-        var Data = {
-            labels: ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"],
+        var encabezado = ['x', 'Memoria RAM']
+        var inputData = [Number(this.state.data[15][0]) + 1, this.state.memoria.Used_memory]
+        console.log(this.state.data[7])
+        var datos = []
+        datos.push(encabezado)
+        for (let i = 0; i < 15; i++) {
+            if(this.state.data[i+2]){
+                datos.push(this.state.data[i+2])
+            }
         }
-        this.setState({ data: Data })
+        datos.push(inputData)
+        this.setState({ data: datos })
     }
 }
