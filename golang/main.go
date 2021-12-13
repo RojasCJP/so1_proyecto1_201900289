@@ -88,7 +88,7 @@ func writerRam(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(400 * time.Millisecond)
 	}
 }
 
@@ -99,7 +99,7 @@ func writerCpu(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(400 * time.Millisecond)
 	}
 }
 
