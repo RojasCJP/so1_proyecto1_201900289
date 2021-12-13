@@ -83,7 +83,6 @@ export class Memory extends React.Component {
     fillData() {
         var encabezado = ['x', 'Memoria RAM']
         var inputData = [Number(this.state.data[15][0]) + 1, this.state.memoria.Used_memory]
-        console.log(this.state.data[7])
         var datos = []
         datos.push(encabezado)
         for (let i = 0; i < 15; i++) {

@@ -22,6 +22,9 @@ export class Navbar extends React.Component {
                                 <li class="nav-item active">
                                         <a class="nav-link" href='memory'>Memoria</a>
                                 </li>
+                                <li class="nav-item active">
+                                        <a class="nav-link" href='process'>Procesos</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
