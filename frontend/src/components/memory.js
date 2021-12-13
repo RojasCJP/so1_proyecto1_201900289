@@ -1,28 +1,25 @@
 import React from 'react'
 import { Chart } from 'react-google-charts'
 
-
-const client = new WebSocket('ws://localhost:4200/ram')
+const clientram = new WebSocket('ws://localhost:4200/ram')
 export class Memory extends React.Component {
+    client = clientram
     state = {
         data: [['x', 'Memoria RAM'], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0]],
-        memoria: { Total_memory: 0, Free_memory: 0, Used_memory: 0, Available_memory:0 }
+        memoria: { Total_memory: 0, Free_memory: 0, Used_memory: 0, Available_memory: 0 }
     }
 
     componentDidMount() {
-        client.onopen = (event) => {
+        this.client.onopen = (event) => {
             console.log("memory websocket connected");
         }
-        client.onmessage = (message) => {
+        this.client.onmessage = (message) => {
             const dataFromServer = JSON.parse(message.data);
             console.log("ram", dataFromServer)
             this.fillData()
             this.setState({ memoria: dataFromServer })
 
         }
-    }
-    componentWillUnmount() {
-        client.close()
     }
 
     render() {
@@ -31,7 +28,7 @@ export class Memory extends React.Component {
                 <div className='col'>
 
                     <Chart
-                        width={'800px'}
+                        width={'1500px'}
                         height={'1000px'}
                         chartType="LineChart"
                         loader={<div>Loading Chart</div>}
@@ -41,7 +38,7 @@ export class Memory extends React.Component {
                             backgroundColor: 'transparent',
                             hAxis: {
                                 title: 'Tiempo',
-                                textPosition:'none'
+                                textPosition: 'none'
                             },
                             vAxis: {
                                 title: 'Uso',
@@ -53,29 +50,29 @@ export class Memory extends React.Component {
                         rootProps={{ 'data-testid': '1' }}
                     />
                 </div>
-                        <div className='col'>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <p>
-                                Memoria total: {this.state.memoria.Total_memory}
-                            </p>
-                            <p>
-                                Memoria libre: {this.state.memoria.Free_memory}
-                            </p>
-                            <p>
-                                Memoria disponible: {this.state.memoria.Available_memory}
-                            </p>
-                            <p>
-                                Uso de memoria: {this.state.memoria.Used_memory}%
-                            </p>
-                        </div>
+                <div className='col'>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <p>
+                        Memoria total: {this.state.memoria.Total_memory}
+                    </p>
+                    <p>
+                        Memoria libre: {this.state.memoria.Free_memory}
+                    </p>
+                    <p>
+                        Memoria disponible: {this.state.memoria.Available_memory}
+                    </p>
+                    <p>
+                        Uso de memoria: {this.state.memoria.Used_memory}%
+                    </p>
+                </div>
             </div>
         )
     }
@@ -86,8 +83,8 @@ export class Memory extends React.Component {
         var datos = []
         datos.push(encabezado)
         for (let i = 0; i < 15; i++) {
-            if(this.state.data[i+2]){
-                datos.push(this.state.data[i+2])
+            if (this.state.data[i + 2]) {
+                datos.push(this.state.data[i + 2])
             }
         }
         datos.push(inputData)

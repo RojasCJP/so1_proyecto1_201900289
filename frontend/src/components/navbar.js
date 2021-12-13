@@ -14,16 +14,19 @@ export class Navbar extends React.Component {
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav mr-auto">
                                 <li class="nav-item active">
-                                        <a class="nav-link" href='/'>Datos</a>
+                                    <Link to='/'>
+                                        <a class="nav-link">Datos</a>
+                                    </Link>
                                 </li>
                                 <li class="nav-item active">
-                                        <a class="nav-link" href='cpu'>CPU</a>
+                                    <Link to='/cpu'>
+                                        <a class="nav-link" >CPU</a>
+                                    </Link>
                                 </li>
                                 <li class="nav-item active">
-                                        <a class="nav-link" href='memory'>Memoria</a>
-                                </li>
-                                <li class="nav-item active">
-                                        <a class="nav-link" href='process'>Procesos</a>
+                                    <Link to='/memory'>
+                                        <a class="nav-link" >Memoria</a>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
