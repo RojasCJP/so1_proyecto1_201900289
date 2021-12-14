@@ -1,7 +1,7 @@
 import React from 'react'
 import { Chart } from 'react-google-charts'
 
-const clientcpu = new WebSocket('ws://localhost:4200/cpu')
+export const clientcpu = new WebSocket('ws://localhost:4200/cpu')
 export class Cpu extends React.Component {
     client = clientcpu
     state = {
@@ -109,7 +109,7 @@ export class Cpu extends React.Component {
                                 <td>{element.User}</td>
                                 <td>{element.State}</td>
                                 <td>{element.Ram}</td>
-                                <td><button className='btn btn-danger'>KILL</button></td>
+                                <td><button className='btn btn-danger' onClick={()=>this.killProcess(element.Pid)}>KILL</button></td>
                             </tr>
                     )}
                 </tbody>
@@ -119,7 +119,7 @@ export class Cpu extends React.Component {
     }
 
     fillData() {
-        var encabezado = ['x', 'Memoria RAM']
+        var encabezado = ['x', 'Uso CPU']
         var inputData = [Number(this.state.data[15][0]) + 1, this.state.cpuData.Usage]
         console.log(this.state.data[7])
         var datos = []
@@ -131,5 +131,20 @@ export class Cpu extends React.Component {
         }
         datos.push(inputData)
         this.setState({ data: datos })
+    }
+
+    killProcess(pid){
+     fetch("http://localhost:4200/kill",{
+         method:'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: pid
+     }).then(async response =>{
+         const json =await response.json()
+        if (json.value != false){
+            // tengo que poner el verdadero
+        }else{
+            // tengo que poner el falso
+        }
+     })   
     }
 }

@@ -31,3 +31,22 @@ type Cpu struct {
 	Total     int       `json: "total"`
 	Usage     float64   `json: "usage"`
 }
+
+type ProcessSend struct {
+	Pid   int    `json: "pid"`
+	Name  string `json: "name"`
+	User  string `json: "user"`
+	State int    `json: "state"`
+	Ram   int    `json: "ram"`
+	Child []int  `json: "child"`
+}
+
+type CpuSend struct {
+	Processes []ProcessSend `json: "processes"`
+	Running   int           `json: "running"`
+	Sleeping  int           `json: "sleeping"`
+	Zombie    int           `json: "zombie"`
+	Stopped   int           `json: "stopped"`
+	Total     int           `json: "total"`
+	Usage     float64       `json: "usage"`
+}

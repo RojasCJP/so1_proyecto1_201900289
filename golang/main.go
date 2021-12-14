@@ -41,6 +41,7 @@ func makeServer() {
 	router.HandleFunc("/", welcome).Methods("GET")
 	router.HandleFunc("/ram", socketMemory)
 	router.HandleFunc("/cpu", socketCpu)
+	router.HandleFunc("/kill", killProcess).Methods("POST")
 	fmt.Println("server up in " + port + " port")
 	http.ListenAndServe(":"+port, handlers.CORS(headers, methods, origins)(router))
 }
@@ -88,7 +89,7 @@ func writerRam(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(400 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 	}
 }
 
@@ -99,7 +100,7 @@ func writerCpu(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(400 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 	}
 }
 
@@ -157,10 +158,67 @@ func getMemory() structs.Memoria {
 	return memoria
 }
 
-func getCPU() structs.Cpu {
+func getCPU() structs.CpuSend {
 	processes, _ := ioutil.ReadFile("/proc/cpu_201900289")
 	var cpu structs.Cpu
+	var cpuSend structs.CpuSend
 	json.Unmarshal(processes, &cpu)
 	cpu.Usage = getCpuUsage()
-	return cpu
+	hashmap := make(map[int]string)
+	var keys []int
+	for i := 0; i < len(cpu.Processes); i++ {
+		inputProcess := cpu.Processes[i]
+		// TODO cambiar el usuario
+		if !contains(keys, inputProcess.User) {
+			keys = append(keys, inputProcess.User)
+			hashmap[inputProcess.User] = getUser(inputProcess.User)
+		}
+		auxiliar := structs.ProcessSend{Pid: inputProcess.Pid, Name: inputProcess.Name, User: hashmap[inputProcess.User], State: inputProcess.State, Ram: inputProcess.Ram, Child: inputProcess.Child}
+		cpuSend.Processes = append(cpuSend.Processes, auxiliar)
+	}
+	cpuSend.Running = cpu.Running
+	cpuSend.Sleeping = cpu.Sleeping
+	cpuSend.Stopped = cpu.Stopped
+	cpuSend.Total = cpu.Total
+	cpuSend.Usage = cpu.Usage
+	cpuSend.Zombie = cpu.Zombie
+	return cpuSend
+}
+
+func getUser(nombre int) string {
+	cmd := exec.Command("sh", "-c", `id -nu `+strconv.Itoa(nombre))
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error al correr comando", err)
+	}
+	salida := strings.Trim(strings.Trim(string(stdout), " "), "\n")
+	return salida
+}
+
+func killProcess(response http.ResponseWriter, request *http.Request) {
+	data, errRead := ioutil.ReadAll(request.Body)
+	fmt.Println("kill process")
+	if errRead != nil {
+		fmt.Println("error al eliminar un proceso")
+		response.Write([]byte("{\"value\": false"))
+	}
+	fmt.Println(string(data))
+	cmd := exec.Command("sh", "-c", `kill `+string(data))
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error al correr comando", err)
+	}
+	salida := strings.Trim(strings.Trim(string(stdout), " "), "\n")
+	fmt.Println(salida)
+	response.Write([]byte("{\"value\": true"))
+
+}
+
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

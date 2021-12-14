@@ -28,6 +28,11 @@ export class Navbar extends React.Component {
                                         <a class="nav-link" >Memoria</a>
                                     </Link>
                                 </li>
+                                <li class="nav-item active">
+                                    <Link to='/tree'>
+                                        <a class="nav-link" >Arbol</a>
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                     </div>
