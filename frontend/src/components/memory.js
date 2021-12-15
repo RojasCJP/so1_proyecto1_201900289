@@ -6,7 +6,7 @@ export class Memory extends React.Component {
     client = clientram
     state = {
         data: [['x', 'Memoria RAM'], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0]],
-        memoria: { Total_memory: 0, Free_memory: 0, Used_memory: 0, Available_memory: 0 }
+        memoria: { Total_memory: 0, Free_memory: 0, Used_memory: 0, Available_memory: 0 ,MB_memory:0}
     }
 
     componentDidMount() {
@@ -68,6 +68,9 @@ export class Memory extends React.Component {
                     </p>
                     <p>
                         Memoria disponible: {this.state.memoria.Available_memory}
+                    </p>
+                    <p>
+                        Memoria en uso: {this.state.memoria.MB_memory}
                     </p>
                     <p>
                         Uso de memoria: {this.state.memoria.Used_memory}%

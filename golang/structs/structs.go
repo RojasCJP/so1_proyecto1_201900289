@@ -11,6 +11,7 @@ type Memoria struct {
 	Used_memory      int     `json: "used_memory"`
 	Cache_memory     float64 `json: "cache_memory"`
 	Available_memory int     `json: "available_memory"`
+	MB_memory        int     `json: "mb_memory"`
 }
 
 type Process struct {

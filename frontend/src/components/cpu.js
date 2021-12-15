@@ -75,7 +75,7 @@ export class Cpu extends React.Component {
                         Total: {this.state.cpuData.Total}
                     </p>
                     <p>
-                        Usage: {this.state.cpuData.Usage}
+                        Usage: {this.getUsage()}
                     </p>
                 </div>
                 <h1>Procesos</h1>
@@ -86,7 +86,7 @@ export class Cpu extends React.Component {
                 <div className="col">Zombie: {this.state.cpuData.Zombie}</div>
                 <div className="col">Stopped: {this.state.cpuData.Stopped}</div>
                 <div className="col">Total: {this.state.cpuData.Total}</div>
-                <div className="col">Usage: {this.state.cpuData.Usage}</div>
+                <div className="col">Usage: {this.getUsage()}</div>
             </div>
             <br />
             <table className="table table-striped table-hover table-light">
@@ -116,6 +116,10 @@ export class Cpu extends React.Component {
             </table>
             </div>
         )
+    }
+
+    getUsage(){
+        return Math.round(this.state.cpuData.Usage*100)/100
     }
 
     fillData() {

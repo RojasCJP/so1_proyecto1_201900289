@@ -26,6 +26,7 @@ var upgrader = websocket.Upgrader{
 func main() {
 	// fmt.Println(getCPU())
 	// fmt.Println(getMemory())
+	// fmt.Println(getCpuUsage())
 	makeServer()
 }
 
@@ -127,14 +128,19 @@ func socketCpu(response http.ResponseWriter, request *http.Request) {
 }
 
 func getCpuUsage() float64 {
-	cmd := exec.Command("sh", "-c", `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage ""}'`)
+	cmd := exec.Command("sh", "-c", `ps -eo pcpu | sort -k 1 -r | head -50`)
 	stdout, err := cmd.Output()
 	if err != nil {
 		fmt.Println("error al correr comando", err)
 	}
-	salida := strings.Trim(strings.Trim(string(stdout), " "), "\n")
-	valor, _ := strconv.ParseFloat(salida, 64)
-	return (valor)
+	salidaAuxiliar := strings.Split(string(stdout), "\n")
+	var total float64 = 0
+	for i := 0; i < len(salidaAuxiliar); i++ {
+		float1, _ := strconv.ParseFloat(salidaAuxiliar[i], 64)
+		total += float1
+	}
+	total = (total / float64(len(salidaAuxiliar)-43))
+	return (total)
 }
 
 func getCache() float64 {
@@ -155,6 +161,7 @@ func getMemory() structs.Memoria {
 	memoria.Cache_memory = getCache()
 	memoria.Used_memory = (memoria.Total_memory - memoria.Free_memory - int(getCache())) * 100 / memoria.Total_memory
 	memoria.Available_memory = memoria.Free_memory + int(getCache())
+	memoria.MB_memory = (memoria.Total_memory - memoria.Free_memory - int(getCache()))
 	return memoria
 }
 
