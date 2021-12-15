@@ -40,7 +40,7 @@ static int proc_cpu(struct seq_file *file, void *v)
     {
         if (task->mm)
         {
-                rss = get_mm_rss(task->mm) << PAGE_SHIFT;
+            rss = get_mm_rss(task->mm) << PAGE_SHIFT;
         }
         else
         {
@@ -69,11 +69,17 @@ static int proc_cpu(struct seq_file *file, void *v)
             taskChild = list_entry(list, struct task_struct, sibling);
             if (a != 0)
             {
-                seq_printf(file, ",%d", taskChild->pid);
+                seq_printf(file, ",{");
+                seq_printf(file, "\"pid\":%d,\n", taskChild->pid);
+                seq_printf(file, "\"name\":\"%s\"\n", taskChild->comm);
+                seq_printf(file, "}\n");
             }
             else
             {
-                seq_printf(file, "%d", taskChild->pid);
+                seq_printf(file, "{");
+                seq_printf(file, "\"pid\":%d,\n", taskChild->pid);
+                seq_printf(file, "\"name\":\"%s\"\n", taskChild->comm);
+                seq_printf(file, "}\n");
                 a = 1;
             }
         }

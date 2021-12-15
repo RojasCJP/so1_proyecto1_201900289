@@ -14,12 +14,12 @@ type Memoria struct {
 }
 
 type Process struct {
-	Pid   int    `json: "pid"`
-	Name  string `json: "name"`
-	User  int    `json: "user"`
-	State int    `json: "state"`
-	Ram   int    `json: "ram"`
-	Child []int  `json: "child"`
+	Pid   int      `json: "pid"`
+	Name  string   `json: "name"`
+	User  int      `json: "user"`
+	State int      `json: "state"`
+	Ram   int      `json: "ram"`
+	Child []Childs `json: "child"`
 }
 
 type Cpu struct {
@@ -33,12 +33,17 @@ type Cpu struct {
 }
 
 type ProcessSend struct {
-	Pid   int    `json: "pid"`
-	Name  string `json: "name"`
-	User  string `json: "user"`
-	State int    `json: "state"`
-	Ram   int    `json: "ram"`
-	Child []int  `json: "child"`
+	Pid   int      `json: "pid"`
+	Name  string   `json: "name"`
+	User  string   `json: "user"`
+	State int      `json: "state"`
+	Ram   int      `json: "ram"`
+	Child []Childs `json: "child"`
+}
+
+type Childs struct {
+	Pid  int    `json: "pid"`
+	Name string `json: "name"`
 }
 
 type CpuSend struct {

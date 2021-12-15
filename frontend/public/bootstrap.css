@@ -315,6 +315,10 @@ table {
   border-collapse: collapse;
 }
 
+table .collapse:in{
+  display:table-row;
+}
+
 caption {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -11103,3 +11107,4 @@ body {
   font-size: 8px;
   line-height: 8px;
 }
+

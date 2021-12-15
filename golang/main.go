@@ -168,7 +168,6 @@ func getCPU() structs.CpuSend {
 	var keys []int
 	for i := 0; i < len(cpu.Processes); i++ {
 		inputProcess := cpu.Processes[i]
-		// TODO cambiar el usuario
 		if !contains(keys, inputProcess.User) {
 			keys = append(keys, inputProcess.User)
 			hashmap[inputProcess.User] = getUser(inputProcess.User)
