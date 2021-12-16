@@ -43,12 +43,21 @@ func makeServer() {
 	router.HandleFunc("/ram", socketMemory)
 	router.HandleFunc("/cpu", socketCpu)
 	router.HandleFunc("/kill", killProcess).Methods("POST")
+	router.HandleFunc("/loadCpu", loadCpu).Methods("GET")
 	fmt.Println("server up in " + port + " port")
 	http.ListenAndServe(":"+port, handlers.CORS(headers, methods, origins)(router))
 }
 
 func welcome(response http.ResponseWriter, request *http.Request) {
 	response.Write([]byte("Hello from Go api"))
+}
+
+func loadCpu(response http.ResponseWriter, request *http.Request) {
+	numero := 123
+	for i := 0; i < 100; i++ {
+		numero = numero + numero
+	}
+	response.Write([]byte("exito"))
 }
 
 func readerCPU(connection *websocket.Conn) {
@@ -90,7 +99,7 @@ func writerRam(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(1 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
@@ -101,7 +110,7 @@ func writerCpu(connection *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		time.Sleep(1 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
